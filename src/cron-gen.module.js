@@ -13,9 +13,13 @@ angular.module('angular-cron-gen', [])
             selectClass: '<',
             use24HourTime: '<',
             hideSeconds: '<',
-            namePrefix: '@'
+            namePrefix: '@',
+			templateUrl: '@'
         },
-        templateUrl: 'angular-cron-gen/cron-gen-time-select.html',
+		templateUrl($attrs) {
+			'ngInject';
+			return $attrs.templateUrl || 'angular-cron-gen/cron-gen-time-select.html';
+		},
         controller: CronGenTimeSelect
     })
     .component('cronGen', {
