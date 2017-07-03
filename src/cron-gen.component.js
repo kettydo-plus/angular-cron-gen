@@ -1,34 +1,102 @@
 const ACCEPTABLE_CRON_FORMATS = ['quartz'];
-const DAY_LOOKUPS = {
-    'SUN': 'Sunday',
-    'MON': 'Monday',
-    'TUE': 'Tuesday',
-    'WED': 'Wednesday',
-    'THU': 'Thursday',
-    'FRI': 'Friday',
-    'SAT': 'Saturday'
-};
-const MONTH_WEEK_LOOKUPS = {
-    '#1': 'First',
-    '#2': 'Second',
-    '#3': 'Third',
-    '#4': 'Fourth',
-    '#5': 'Fifth',
-    'L': 'Last'
-};
-const MONTH_LOOKUPS = {
-    '1': 'January',
-    '2': 'February',
-    '3': 'March',
-    '4': 'April',
-    '5': 'May',
-    '6': 'June',
-    '7': 'July',
-    '8': 'August',
-    '9': 'September',
-    '10': 'October',
-    '11': 'November',
-    '12': 'December'
+
+const defaultLocale = {
+	"DAY_LOOKUPS": {
+		"SUN": "Sunday",
+		"MON": "Monday",
+		"TUE": "Tuesday",
+		"WED": "Wednesday",
+		"THU": "Thursday",
+		"FRI": "Friday",
+		"SAT": "Saturday"
+	},
+	"MONTH_WEEK_LOOKUPS": {
+		"#1": "First",
+		"#2": "Second",
+		"#3": "Third",
+		"#4": "Fourth",
+		"#5": "Fifth",
+		"L": "Last"
+	},
+	"MONTH_LOOKUPS": {
+		"1": "January",
+		"2": "February",
+		"3": "March",
+		"4": "April",
+		"5": "May",
+		"6": "June",
+		"7": "July",
+		"8": "August",
+		"9": "September",
+		"10": "October",
+		"11": "November",
+		"12": "December"
+	},
+	"MONTHDAY_LOOKUPS": {
+		"L": "Last Day",
+		"LW":"Last Weekday",
+		"1W": "First Weekday",
+		"1": "1st day",
+		"2": "2nd day",
+		"3": "3rd day",
+		"4": "4th day",
+		"5": "5th day",
+		"6": "6th day",
+		"7": "7th day",
+		"8": "8th day",
+		"9": "9th day",
+		"10": "10th day",
+		"11": "11th day",
+		"12": "12th day",
+		"13": "13th day",
+		"14": "14th day",
+		"15": "15th day",
+		"16": "16th day",
+		"17": "17th day",
+		"18": "18th day",
+		"19": "19th day",
+		"20": "20th day",
+		"21": "21st day",
+		"22": "22nd day",
+		"23": "23rd day",
+		"24": "24th day",
+		"25": "25th day",
+		"26": "26th day",
+		"27": "27th day",
+		"28": "28th day",
+		"29": "29th day",
+		"30": "30th day",
+		"31": "31st day"
+	},
+	
+	"TABS": {
+		"MINUTES": "Minutes",
+		"HOURLY": "Hourly",
+		"DAILY": "Daily",
+		"WEEKLY": "Weekly",
+		"MONTHLY": "Monthly",
+		"YEARLY": "Yearly",
+		"ADVANCED": "Advanced"
+	},
+	
+	"LABELS": {
+		"ONTHE": "on the",
+		"EVERY": "every",
+		"MINUTES": "minute(s)",
+		"ON_SECOND": "on second",
+		"HOUR_ON_MINUTE": "hour(s) on minute",
+		"AND_SECOND": "and second",
+		"DAY_AT": "day(s) at",
+		"EVERY_WEEKDAY": "every week day (Monday through Friday) at",
+		"START_TIME": "start time",
+		"OF_EVERY": "of every",
+		"MONTH_AT": "month(s) at",
+		"AT": "at",
+		"OF": "of",
+		"CRON_EXPRESSION": "Cron Expression",
+		"CRON_DETAILS": "More details about how to create these expressions can be found",
+		"CRON_HERE": "here"
+	}
 };
 
 const States = {
@@ -148,7 +216,9 @@ export class CronGenComponent {
                 advanced: {
                     expression: '0 15 10 L-2 * ?'
                 }
-            }
+            },
+            currentLocales: null,
+			isReady: false
         });
 
         //Validate our opts
@@ -161,6 +231,8 @@ export class CronGenComponent {
 
         // Watch for option changes
         $scope.$watch('$ctrl.options', (options) => this.parsedOptions = this.mergeDefaultOptions(options), true);
+	
+		$scope.$watch('$ctrl.locale', (locale) => this.loadLocale(this.localePath || 'i18n/', locale || 'en_US'));
     }
 
     $onInit() {
@@ -170,6 +242,21 @@ export class CronGenComponent {
         }
     }
 
+    loadLocale(localePath, locale) {
+		const _self = this;
+		//_self.isReady = false;
+		this.cronGenService.getLocale(localePath, locale).then(function(response){
+			if(response && response.status === 200) {
+				_self.currentLocales = response.data;
+				_self.isReady = true;
+			} else {
+				_self.currentLocales = defaultLocale;
+				_self.isReady = true;
+				throw 'Unable to find selected locale';
+			}
+		});
+    }
+    
     setActiveTab($event, tab) {
         $event.preventDefault();
         if (!this.ngDisabled) {
@@ -179,18 +266,21 @@ export class CronGenComponent {
     }
 
     dayDisplay(day) {
-        return DAY_LOOKUPS[day];
+        return this.currentLocales.DAY_LOOKUPS[day];
     }
 
     monthWeekDisplay(monthWeekNumber) {
-        return MONTH_WEEK_LOOKUPS[monthWeekNumber];
+        return this.currentLocales.MONTH_WEEK_LOOKUPS[monthWeekNumber];
     }
 
     monthDisplay(monthNumber) {
-        return MONTH_LOOKUPS[monthNumber];
+        return this.currentLocales.MONTH_LOOKUPS[monthNumber];
     }
 
     monthDayDisplay(monthDay) {
+		return this.currentLocales.MONTHDAY_LOOKUPS[monthDay];
+		
+		/*
         if (monthDay === 'L') {
             return 'Last Day';
         } else if (monthDay === 'LW') {
@@ -200,6 +290,7 @@ export class CronGenComponent {
         } else {
             return `${monthDay}${this.cronGenService.appendInt(monthDay)} Day`;
         }
+        */
     }
 
     processHour(hours) {

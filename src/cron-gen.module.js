@@ -27,6 +27,8 @@ angular.module('angular-cron-gen', [])
             ngModel: '=',
             ngDisabled: '<',
             options: '<',
+            locale: '@',
+            localePath: '@',
             cronFormat: '@',
             templateUrl: '@',
             name: '@'

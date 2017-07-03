@@ -5,4 +5,6 @@ angular.module('ExampleApp', ['angular-cron-gen'])
             hideAdvancedTab: false
         };
         $scope.isCronDisabled = false;
+        
+        $scope.locale = 'en_US';
     }]);
