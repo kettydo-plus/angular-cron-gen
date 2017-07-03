@@ -334,7 +334,7 @@ var CronGenComponent = function () {
                     expression: '0 15 10 L-2 * ?'
                 }
             },
-            currentLocales: null,
+            currentLocales: defaultLocale,
             isReady: false
         });
 

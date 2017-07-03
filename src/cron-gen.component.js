@@ -217,7 +217,7 @@ export class CronGenComponent {
                     expression: '0 15 10 L-2 * ?'
                 }
             },
-            currentLocales: null,
+            currentLocales: defaultLocale,
 			isReady: false
         });
 
